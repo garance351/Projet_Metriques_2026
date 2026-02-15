@@ -25,7 +25,7 @@ Difficulté : Simple (~10 minutes)
 ---------------------------------------------------
 Vous allez dans cette séquence installer un serveur Flask dans votre Codespace. Depuis le terminal de votre Codespace copier/coller les codes ci-dessous étape par étape :  
 
-**Création du cluster K3d**  
+**Création du serveur Flask**  
 ```
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 ```
