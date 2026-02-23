@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Rapport météo Paris</title>
+
+  <!-- Google Charts -->
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .chart {
+      margin-bottom: 50px;
+    }
+  </style>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(drawCharts);
+
+    function drawCharts() {
+
+      var data = google.visualization.arrayToDataTable([
+        ['Date', 'Température (°C)'],
+        {% for date, temp in data %}
+          ['{{ date }}', {{ temp }}],
+        {% endfor %}
+      ]);
+
+      var commonOptions = {
+        legend: { position: 'right' },
+        hAxis: {
+          title: 'Date',
+          titleTextStyle: { fontSize: 14, bold: true }
+        },
+        vAxis: {
+          title: 'Température (°C)',
+          titleTextStyle: { fontSize: 14, bold: true }
+        },
+        animation: {
+          startup: true,
+          duration: 1000,
+          easing: 'out'
+        }
+      };
+
+      // Histogramme
+      var barOptions = Object.assign({
+        title: 'Histogramme des températures (7 jours)',
+        colors: ['#4285F4']
+      }, commonOptions);
+
+      var barChart = new google.visualization.ColumnChart(
+        document.getElementById('bar_chart')
+      );
+      barChart.draw(data, barOptions);
+
+      // Graphique en ligne
+      var lineOptions = Object.assign({
+        title: 'Évolution des températures (7 jours)',
+        colors: ['#DB4437'],
+        curveType: 'function'
+      }, commonOptions);
+
+      var lineChart = new google.visualization.LineChart(
+        document.getElementById('line_chart')
+      );
+      lineChart.draw(data, lineOptions);
+    }
+  </script>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Rapport météo – Paris</h1>
+
+    <div id="bar_chart" class="chart" style="height: 400px;"></div>
+
+    <div id="line_chart" class="chart" style="height: 400px;"></div>
+
+  </div>
+
+</body>
+</html>
