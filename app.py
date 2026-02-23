@@ -49,6 +49,73 @@ def histogramme():
 
     return render_template("histogramme1.html", data=result)
 
+
+@app.route("/graphique")
+def atelier_dashboard():
+    # --- Récupérer les données météo ItaliaMeteo ARPAE ICON-2I pour Rome ---
+    latitude = 41.89
+    longitude = 12.51
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "hourly": "temperature_2m,relativehumidity_2m,wind_speed_10m,precipitation_sum",
+        "models": "italia_meteo_arpae_icon_2i"
+    }
+    data = requests.get(url, params=params).json()
+    
+    # Préparer les données
+    hours = list(range(len(data['hourly']['temperature_2m'])))
+    temp = data['hourly']['temperature_2m']
+    humidity = data['hourly']['relativehumidity_2m']
+    wind = data['hourly']['wind_speed_10m']
+    precip = data['hourly']['precipitation_sum']
+    
+    # --- Radar Chart ---
+    radar_fig = go.Figure()
+    radar_fig.add_trace(go.Scatterpolar(
+        r=[temp[0], humidity[0], wind[0], precip[0]],
+        theta=['Temp (°C)','Humidité (%)','Vent (km/h)','Précipitations (mm)'],
+        fill='toself',
+        name='Indicateurs actuels'
+    ))
+    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True)))
+    radar_div = radar_fig.to_html(full_html=False)
+    
+    # --- Gauge ---
+    gauge_fig = go.Figure(go.Indicator(
+        mode = "gauge+number+delta",
+        value = wind[0],
+        title = {'text': "Vitesse du vent (km/h)"},
+        delta = {'reference': 10, 'increasing': {'color': "red"}},
+        gauge = {
+            'axis': {'range': [0, 100]},
+            'bar': {'color': "blue"},
+            'steps' : [
+                {'range': [0, 25], 'color': "lightgreen"},
+                {'range': [25, 50], 'color': "yellow"},
+                {'range': [50, 75], 'color': "orange"},
+                {'range': [75, 100], 'color': "red"}],
+            'threshold' : {'line': {'color': "black", 'width': 4}, 'thickness': 0.75, 'value': wind[0]}
+        }
+    ))
+    gauge_div = gauge_fig.to_html(full_html=False)
+    
+    # --- Heatmap ---
+    heatmap_fig = go.Figure(data=go.Heatmap(
+        z=[temp],
+        x=hours,
+        y=["Température (°C)"],
+        colorscale='Viridis'
+    ))
+    heatmap_div = heatmap_fig.to_html(full_html=False)
+    
+    return render_template("graphique3.html",
+                           radar_div=radar_div,
+                           gauge_div=gauge_div,
+                           heatmap_div=heatmap_div)
+
+
 # Ne rien mettre après ce commentaire
     
 if __name__ == "__main__":
