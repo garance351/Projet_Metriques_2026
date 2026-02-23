@@ -1,5 +1,7 @@
 import requests
 from flask import Flask, jsonify, render_template
+import plotly.graph_objects as go
+
 
 app = Flask(__name__)
 
