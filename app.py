@@ -51,71 +51,48 @@ def histogramme():
 
     return render_template("histogramme1.html", data=result)
 
+@app.route('/atelier')
+def atelier():
+    # Coordonnées de Marseille
+    latitude = 43.2965
+    longitude = 5.3698
 
-@app.route("/graphique")
-def atelier_dashboard():
-    # --- Récupérer les données météo ItaliaMeteo ARPAE ICON-2I pour Rome ---
-    latitude = 41.89
-    longitude = 12.51
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "hourly": "temperature_2m,relativehumidity_2m,wind_speed_10m,precipitation_sum",
-        "models": "italia_meteo_arpae_icon_2i"
+        "hourly": "wind_speed_10m,wind_direction_10m,relativehumidity_2m,precipitation_sum,temperature_2m",
+        "timezone": "Europe/Paris"
     }
-    data = requests.get(url, params=params).json()
-    
-    # Préparer les données
-    hours = list(range(len(data['hourly']['temperature_2m'])))
-    temp = data['hourly']['temperature_2m']
-    humidity = data['hourly']['relativehumidity_2m']
-    wind = data['hourly']['wind_speed_10m']
-    precip = data['hourly']['precipitation_sum']
-    
-    # --- Radar Chart ---
-    radar_fig = go.Figure()
-    radar_fig.add_trace(go.Scatterpolar(
-        r=[temp[0], humidity[0], wind[0], precip[0]],
-        theta=['Temp (°C)','Humidité (%)','Vent (km/h)','Précipitations (mm)'],
-        fill='toself',
-        name='Indicateurs actuels'
-    ))
-    radar_fig.update_layout(polar=dict(radialaxis=dict(visible=True)))
-    radar_div = radar_fig.to_html(full_html=False)
-    
-    # --- Gauge ---
-    gauge_fig = go.Figure(go.Indicator(
-        mode = "gauge+number+delta",
-        value = wind[0],
-        title = {'text': "Vitesse du vent (km/h)"},
-        delta = {'reference': 10, 'increasing': {'color': "red"}},
-        gauge = {
-            'axis': {'range': [0, 100]},
-            'bar': {'color': "blue"},
-            'steps' : [
-                {'range': [0, 25], 'color': "lightgreen"},
-                {'range': [25, 50], 'color': "yellow"},
-                {'range': [50, 75], 'color': "orange"},
-                {'range': [75, 100], 'color': "red"}],
-            'threshold' : {'line': {'color': "black", 'width': 4}, 'thickness': 0.75, 'value': wind[0]}
-        }
-    ))
-    gauge_div = gauge_fig.to_html(full_html=False)
-    
-    # --- Heatmap ---
-    heatmap_fig = go.Figure(data=go.Heatmap(
-        z=[temp],
-        x=hours,
-        y=["Température (°C)"],
-        colorscale='Viridis'
-    ))
-    heatmap_div = heatmap_fig.to_html(full_html=False)
-    
-    return render_template("graphique3.html",
-                           radar_div=radar_div,
-                           gauge_div=gauge_div,
-                           heatmap_div=heatmap_div)
+    response = requests.get(url, params=params)
+    data = response.json()
+    hourly = data.get('hourly', {})
+
+    if not hourly:
+        return "Erreur: données météo indisponibles", 500
+
+    # Récupération des premières valeurs pour indicateurs actuels
+    wind = hourly.get("wind_speed_10m", [0])[0]
+    wind_dir = hourly.get("wind_direction_10m", [0])[0]
+    humidity = hourly.get("relativehumidity_2m", [0])[0]
+    precip = hourly.get("precipitation_sum", [0])[0]
+    temp = hourly.get("temperature_2m", [0])[0]
+
+    # Sparkline : normaliser 24 dernières températures pour barre miniature
+    temps_24h = hourly.get("temperature_2m", [])[:24]
+    max_temp = max(temps_24h) if temps_24h else 1
+    sparkline = [int((t / max_temp) * 50) for t in temps_24h]  # hauteur max 50px
+
+    indicators = {
+        "wind": wind,
+        "wind_dir": wind_dir,
+        "humidity": humidity,
+        "precip": precip,
+        "temp": temp,
+        "sparkline": sparkline
+    }
+
+    return render_template('atelier.html', indicators=indicators)
 
 
 # Ne rien mettre après ce commentaire
