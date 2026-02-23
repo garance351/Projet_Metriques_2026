@@ -34,6 +34,20 @@ def api_paris():
 def mongraphique():
     return render_template("graphique.html")
 
+@app.route("/histogramme")
+def histogramme():
+
+    url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&daily=temperature_2m_max&forecast_days=7&timezone=Europe/Paris"
+
+    response = requests.get(url)
+    data = response.json()
+
+    dates = data["daily"]["time"]
+    temps = data["daily"]["temperature_2m_max"]
+
+    result = list(zip(dates, temps))
+
+    return render_template("histogramme.html", data=result)
 
 # Ne rien mettre après ce commentaire
     
