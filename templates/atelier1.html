@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Atelier - Dashboard Marseille</title>
+<style>
+body { font-family: Arial,sans-serif; background:#eef2f7; text-align:center; margin:0; padding:20px; }
+h1 { margin-top:20px; }
+
+.dashboard { display:flex; flex-wrap:wrap; justify-content:center; gap:40px; margin-top:30px; }
+
+/* Cartes indicateurs */
+.card { background:white; padding:20px; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1); width:220px; }
+
+/* Tableau récap */
+table { width:80%; margin:auto; border-collapse:collapse; margin-top:20px; }
+th, td { border:1px solid #ddd; padding:10px; }
+th { background:#4285F4; color:white; }
+
+/* Roue température */
+.temp-wheel { width:300px; height:300px; border-radius:50%; margin:auto; display:flex; flex-wrap:wrap; }
+.sector { flex: 1 0 20px; height:20px; margin:1px; border-radius:5px; }
+
+/* Barre humidité */
+.bar-container { width:180px; height:20px; background:#ddd; border-radius:10px; margin:20px auto; }
+.bar { height:100%; border-radius:10px; text-align:right; padding-right:5px; color:white; font-weight:bold; }
+
+/* Jauge vent */
+.gauge { width:180px; height:90px; background:#eee; border-radius:100px 100px 0 0; position:relative; overflow:hidden; margin:auto; }
+.needle { width:4px; height:100%; position:absolute; bottom:0; left:50%; transform-origin:bottom center; }
+</style>
+</head>
+<body>
+
+<h1>Dashboard météo - Marseille</h1>
+
+<div class="dashboard">
+
+  <!-- Jauge vent -->
+  <div class="card">
+    <div class="gauge">
+      <div class="needle" style="transform: rotate({{ indicators.wind * 1.8 }}deg);
+          background:{% if indicators.wind < 25 %}green{% elif indicators.wind < 50 %}yellow{% else %}red{% endif %};">
+      </div>
+    </div>
+    <div>Vent : {{ indicators.wind }} km/h</div>
+  </div>
+
+  <!-- Barre humidité -->
+  <div class="card">
+    <div>Humidité :</div>
+    <div class="bar-container">
+      <div class="bar" style="width: {{ indicators.humidity }}%; background:#4caf50;">
+        {{ indicators.humidity }}%
+      </div>
+    </div>
+  </div>
+
+  <!-- Roue température -->
+  <div class="card">
+    <div class="temp-wheel">
+      {% for t in indicators.sparkline %}
+        <div class="sector" style="background: rgb({{ 255 - t*5 }}, 0, {{ t*5 }}); height:10px;"></div>
+      {% endfor %}
+    </div>
+    <div>Température 24h</div>
+  </div>
+
+</div>
+
+<!-- Tableau résumé -->
+<h2>Résumé des indicateurs</h2>
+<table>
+  <tr><th>Indicateur</th><th>Valeur</th><th>Commentaire</th></tr>
+  <tr><td>Température</td><td>{{ indicators.temp }} °C</td>
+      <td>{% if indicators.temp >=25 %}Chaud{% elif indicators.temp>=15 %}Tempéré{% else %}Froid{% endif %}</td></tr>
+  <tr><td>Humidité</td><td>{{ indicators.humidity }} %</td>
+      <td>{% if indicators.humidity>=70 %}Humide{% elif indicators.humidity>=40 %}Moyenne{% else %}Sec{% endif %}</td></tr>
+  <tr><td>Vent</td><td>{{ indicators.wind }} km/h</td>
+      <td>{% if indicators.wind>=50 %}Fort{% elif indicators.wind>=25 %}Moyen{% else %}Faible{% endif %}</td></tr>
+  <tr><td>Direction du vent</td><td>{{ indicators.wind_dir }}°</td><td>Voir roue</td></tr>
+  <tr><td>Précipitations</td><td>{{ indicators.precip }} mm</td>
+      <td>{% if indicators.precip>=10 %}Beaucoup{% elif indicators.precip>=1 %}Modéré{% else %}Peu{% endif %}</td></tr>
+</table>
+
+<a href="/" style="display:inline-block;margin-top:20px;text-decoration:none;padding:10px 20px;border:1px solid #333;border-radius:5px;">← Retour accueil</a>
+
+</body>
+</html>
