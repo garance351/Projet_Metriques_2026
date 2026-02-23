@@ -47,7 +47,7 @@ def histogramme():
 
     result = list(zip(dates, temps))
 
-    return render_template("histogramme.html", data=result)
+    return render_template("histogramme1.html", data=result)
 
 # Ne rien mettre après ce commentaire
     
