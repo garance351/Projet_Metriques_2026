@@ -52,23 +52,23 @@ def histogramme():
     return render_template("histogramme1.html", data=result)
 
 
+# --- Atelier / Dashboard Marseille ---
 @app.route("/atelier")
 def atelier():
-    # Ville : Marseille
     latitude = 43.2965
     longitude = 5.3698
-
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "hourly": "wind_speed_10m,wind_direction_10m,relativehumidity_2m,precipitation_sum,temperature_2m",
+        "hourly": "wind_speed_10m,wind_direction_10m,relativehumidity_2m,temperature_2m,precipitation_sum",
         "timezone": "Europe/Paris"
     }
     response = requests.get(url, params=params)
     data = response.json()
     hourly = data.get('hourly', {})
 
+    # Vérification des données
     if not hourly:
         return "Erreur: données météo indisponibles", 500
 
@@ -79,7 +79,7 @@ def atelier():
     precip = hourly.get("precipitation_sum", [0])[0]
     temp = hourly.get("temperature_2m", [0])[0]
 
-    # Sparkline 24h
+    # Sparkline 24h pour température
     temps_24h = hourly.get("temperature_2m", [])[:24]
     max_temp = max(temps_24h) if temps_24h else 1
     sparkline = [int((t / max_temp) * 50) for t in temps_24h]
@@ -93,7 +93,8 @@ def atelier():
         "sparkline": sparkline
     }
 
-    return render_template('atelier.html', indicators=indicators)
+    return render_template("atelier.html", indicators=indicators)
+
 
 # Ne rien mettre après ce commentaire
     
