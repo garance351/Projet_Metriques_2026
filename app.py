@@ -12,24 +12,23 @@ def hello_world():
 def MaPremiereAPI():
     return "<h2>Ma page de contact</h2>"  
 
-@app.get("/paris")
-def api_paris():
-    
-    url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&hourly=temperature_2m"
-    response = requests.get(url)
-    data = response.json()
+@app.route("/contact", methods=["GET", "POST"])
+def MaPremiereAPI():
+    # Si l'utilisateur a cliqué sur "Envoyer" (Méthode POST)
+    if request.method == "POST":
+        prenom = request.form.get("prenom")
+        nom = request.form.get("nom")
+        message = request.form.get("message")
+#On ouvre un fichier (il sera créé automatiquement s'il n'existe pas)
+        with open("messages.txt", "a", encoding="utf-8") as fichier:
+            fichier.write(f"De: {prenom} {nom}\n")
+            fichier.write(f"Message: {message}\n")
+            fichier.write("-" * 30 + "\n")
+#Message de confirmation basique affiché à l'écran
+        return "Merci ! Votre message a bien été enregistré."
 
-    times = data.get("hourly", {}).get("time", [])
-    temps = data.get("hourly", {}).get("temperature_2m", [])
-
-    n = min(len(times), len(temps))
-    result = [
-        {"datetime": times[i], "temperature_c": temps[i]}
-        for i in range(n)
-    ]
-
-    return jsonify(result)
-
+#Si l'utilisateur arrive simplement sur la page (Méthode GET)
+    return render_template('contact.html')
 
 # Ne rien mettre après ce commentaire
     
