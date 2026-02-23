@@ -12,23 +12,7 @@ def hello_world():
 def MaPremiereAPI():
     return "<h2>Ma page de contact</h2>"  
 
-@app.route("/contact", methods=["GET", "POST"])
-def MaPremiereAPI():
-    # Si l'utilisateur a cliqué sur "Envoyer" (Méthode POST)
-    if request.method == "POST":
-        prenom = request.form.get("prenom")
-        nom = request.form.get("nom")
-        message = request.form.get("message")
-#On ouvre un fichier (il sera créé automatiquement s'il n'existe pas)
-        with open("messages.txt", "a", encoding="utf-8") as fichier:
-            fichier.write(f"De: {prenom} {nom}\n")
-            fichier.write(f"Message: {message}\n")
-            fichier.write("-" * 30 + "\n")
-#Message de confirmation basique affiché à l'écran
-        return "Merci ! Votre message a bien été enregistré."
 
-#Si l'utilisateur arrive simplement sur la page (Méthode GET)
-        return render_template('contact.html')
 
 # Ne rien mettre après ce commentaire
     
