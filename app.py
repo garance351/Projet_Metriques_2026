@@ -52,48 +52,49 @@ def histogramme():
     return render_template("histogramme1.html", data=result)
 
 
+
+
 # --- Atelier / Dashboard Marseille ---
-@app.route("/atelier")
+@app.route('/atelier')
 def atelier():
-    latitude = 43.2965
+    latitude = 43.2965   # Marseille
     longitude = 5.3698
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": latitude,
         "longitude": longitude,
-        "hourly": "wind_speed_10m,wind_direction_10m,relativehumidity_2m,temperature_2m,precipitation_sum",
+        "hourly": "temperature_2m,relativehumidity_2m,wind_speed_10m,wind_direction_10m,precipitation_sum",
         "timezone": "Europe/Paris"
     }
+
     response = requests.get(url, params=params)
     data = response.json()
     hourly = data.get('hourly', {})
 
-    # Vérification des données
     if not hourly:
-        return "Erreur: données météo indisponibles", 500
+        return "Erreur : données météo indisponibles", 500
 
-    # Valeurs actuelles
+    # --- Valeurs actuelles ---
+    temp = hourly.get("temperature_2m", [0])[0]
+    humidity = hourly.get("relativehumidity_2m", [0])[0]
     wind = hourly.get("wind_speed_10m", [0])[0]
     wind_dir = hourly.get("wind_direction_10m", [0])[0]
-    humidity = hourly.get("relativehumidity_2m", [0])[0]
     precip = hourly.get("precipitation_sum", [0])[0]
-    temp = hourly.get("temperature_2m", [0])[0]
 
-    # Sparkline 24h pour température
+    # --- Sparkline 24h pour roue température ---
     temps_24h = hourly.get("temperature_2m", [])[:24]
     max_temp = max(temps_24h) if temps_24h else 1
     sparkline = [int((t / max_temp) * 50) for t in temps_24h]
 
     indicators = {
+        "temp": temp,
+        "humidity": humidity,
         "wind": wind,
         "wind_dir": wind_dir,
-        "humidity": humidity,
         "precip": precip,
-        "temp": temp,
         "sparkline": sparkline
     }
-
-    return render_template("atelier.html", indicators=indicators)
+    return render_template("atelier1.html", indicators=indicators)
 
 
 # Ne rien mettre après ce commentaire
