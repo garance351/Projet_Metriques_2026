@@ -28,7 +28,7 @@ def MaPremiereAPI():
         return "Merci ! Votre message a bien été enregistré."
 
 #Si l'utilisateur arrive simplement sur la page (Méthode GET)
-    return render_template('contact.html')
+        return render_template('contact.html')
 
 # Ne rien mettre après ce commentaire
     
