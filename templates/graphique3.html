@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Météo - Roma</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        h1 { text-align: center; }
+        .chart { margin: 50px auto; max-width: 900px; background: white; padding: 20px; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Météo - Roma (ItaliaMeteo ARPAE ICON-2I)</h1>
+    <div class="chart">{{ radar_div|safe }}</div>
+    <div class="chart">{{ gauge_div|safe }}</div>
+    <div class="chart">{{ heatmap_div|safe }}</div>
+</body>
+</html>
