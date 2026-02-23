@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Atelier - Dashboard Marseille</title>
+    <style>
+        body { font-family: Arial; text-align: center; }
+        .dashboard { display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 30px; }
+        
+        /* Jauge Vent */
+        .gauge { width: 180px; height: 90px; background: #eee; border-radius: 100px 100px 0 0; position: relative; overflow: hidden; margin: 20px auto; }
+        .needle { width: 4px; height: 100%; background: red; position: absolute; bottom: 0; left: 50%; transform-origin: bottom center; }
+
+        .label { font-size: 18px; margin-top: 10px; }
+
+        /* Barre horizontale */
+        .bar-container { width: 180px; height: 20px; background: #ddd; border-radius: 10px; margin: 20px auto; }
+        .bar { height: 100%; border-radius: 10px; text-align: right; padding-right: 5px; color: white; font-weight: bold; }
+
+        /* Barre verticale */
+        .v-bar-container { width: 50px; height: 180px; background: #ddd; margin: 20px auto; display: inline-block; border-radius: 10px; position: relative; }
+        .v-bar { width: 100%; position: absolute; bottom: 0; background: #2196F3; text-align: center; color: white; font-weight: bold; }
+
+        /* Température */
+        .temp { font-size: 24px; margin-top: 20px; font-weight: bold; }
+
+        /* Flèche direction du vent */
+        .wind-arrow { width: 2px; height: 50px; background: black; position: absolute; bottom: 0; left: 50%; transform-origin: bottom center; }
+
+        /* Sparkline miniature */
+        .sparkline { display: flex; gap:2px; justify-content:center; margin-top:10px; }
+        .sparkline div { width:4px; background:orange; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard météo - Marseille</h1>
+    <div class="dashboard">
+        <!-- Vitesse du vent -->
+        <div>
+            <div class="gauge">
+                <div class="needle" style="transform: rotate({{ indicators.wind * 1.8 }}deg); 
+                     background:{% if indicators.wind < 25 %}green{% elif indicators.wind < 50 %}yellow{% else %}red{% endif %};">
+                </div>
+            </div>
+            <div class="label">Vent : {{ indicators.wind }} km/h</div>
+        </div>
+
+        <!-- Humidité -->
+        <div>
+            <div class="bar-container">
+                <div class="bar" style="width: {{ indicators.humidity }}%; background: #4caf50;">
+                    {{ indicators.humidity }}%
+                </div>
+            </div>
+            <div class="label">Humidité</div>
+        </div>
+
+        <!-- Précipitations -->
+        <div>
+            <div class="v-bar-container">
+                <div class="v-bar" style="height: {{ indicators.precip * 5 }}px;">
+                    {{ indicators.precip }} mm
+                </div>
+            </div>
+            <div class="label">Précipitations</div>
+        </div>
+
+        <!-- Température + sparkline -->
+        <div>
+            <div class="temp" style="color:{% if indicators.temp >= 25 %}red{% elif indicators.temp >= 15 %}orange{% else %}blue{% endif %}">
+                {{ indicators.temp }} °C
+            </div>
+            <div class="sparkline">
+                {% for s in indicators.sparkline %}
+                    <div style="height: {{ s }}px;"></div>
+                {% endfor %}
+            </div>
+            <div class="label">Température 24h</div>
+        </div>
+
+        <!-- Direction du vent -->
+        <div style="position: relative; width: 100px; height: 100px; margin: 20px auto;">
+            <div class="wind-arrow" style="transform: rotate({{ indicators.wind_dir }}deg);"></div>
+            <div style="text-align:center; margin-top:60px;">Direction du vent</div>
+        </div>
+
+    </div>
+    <p><a href="/">Retour à l'accueil</a></p>
+</body>
+</html>
