@@ -52,7 +52,48 @@ def histogramme():
     return render_template("histogramme1.html", data=result)
 
 
+@app.route("/atelier")
+def atelier():
+    # Ville : Marseille
+    latitude = 43.2965
+    longitude = 5.3698
 
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "hourly": "wind_speed_10m,wind_direction_10m,relativehumidity_2m,precipitation_sum,temperature_2m",
+        "timezone": "Europe/Paris"
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    hourly = data.get('hourly', {})
+
+    if not hourly:
+        return "Erreur: données météo indisponibles", 500
+
+    # Valeurs actuelles
+    wind = hourly.get("wind_speed_10m", [0])[0]
+    wind_dir = hourly.get("wind_direction_10m", [0])[0]
+    humidity = hourly.get("relativehumidity_2m", [0])[0]
+    precip = hourly.get("precipitation_sum", [0])[0]
+    temp = hourly.get("temperature_2m", [0])[0]
+
+    # Sparkline 24h
+    temps_24h = hourly.get("temperature_2m", [])[:24]
+    max_temp = max(temps_24h) if temps_24h else 1
+    sparkline = [int((t / max_temp) * 50) for t in temps_24h]
+
+    indicators = {
+        "wind": wind,
+        "wind_dir": wind_dir,
+        "humidity": humidity,
+        "precip": precip,
+        "temp": temp,
+        "sparkline": sparkline
+    }
+
+    return render_template('atelier.html', indicators=indicators)
 
 # Ne rien mettre après ce commentaire
     
