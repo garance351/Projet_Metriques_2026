@@ -19,7 +19,15 @@
 
       var options = {
         title: 'Prévisions météo Paris (7 jours)',
-        legend: { position: 'right' }
+        legend: { position: 'right' },
+        hAxis: {
+         title: 'Date'
+        },
+
+        vAxis: {
+          title: 'Température (°C)'
+        }
+};
       };
 
       var chart = new google.visualization.ColumnChart(
